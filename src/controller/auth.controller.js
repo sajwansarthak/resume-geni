@@ -141,5 +141,5 @@ async function logoutUserController(req,res){
 module.exports = {
     registerUserController,
     loginUserController,
-    loginUserController
+    logoutUserController
 }
