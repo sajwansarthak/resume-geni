@@ -1,6 +1,6 @@
 //creating hook layer used to manage our state layer and api layer
 
-import { useContext } from "react";
+import { useContext,useEffect } from "react";
 //importing our state layer
 import { AuthContext } from "../auth.context";
 //importing our api layer
@@ -48,6 +48,18 @@ export const useAuth = () =>{
             setLoading(false)
         }
     }
+
+    //fixing the problem ->after login when you reloaded the page useState user becomes null so the protected.jsx was directing to login again using this we are getting the userinfo from cookie and setting the user data
+    useEffect(() =>{
+
+        const getAndSetUser = async() =>{
+            const data = getMe()
+            setUser(data.user)
+            setLoading(false)
+        }
+
+        getAndSetUser()
+    },[])
 
     return{ user,loading,handleLogin,handleLogout,handleRegister }
 }
