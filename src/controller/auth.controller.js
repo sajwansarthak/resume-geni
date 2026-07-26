@@ -1,4 +1,7 @@
 const userModel = require("../config/database")
+const bcrypt = require("bcryptjs")
+const jwt = require("jsonwebtoken")
+const cookie = require("cookie-parser")
 
 /**
  * @name registerUserController
@@ -33,6 +36,36 @@ async function registerUserController(req,res){
             message: `User already exists with this ${fields.join(" and ")}`
         })
     }
+
+    //hashing the password
+    const hash = await bcrypt.hash(password,10)
+
+    const user = await userModel.create({
+        username,
+        email,
+        password: hash
+    })
+
+    //creating token for the user -> using jsonwebtoken but it require a secret key which can be created from a website called jwtsecrets.com
+    const token = jwt.sign(
+        { id: user._id, username: user.username },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d"}
+    )
+
+    //seting this token in cookie
+    res.cookie("token",token)
+
+    //status code 201 is used to signal  creation of new resource
+    res.status(201).json({
+        messgae: "User registered successfully",
+        user: {
+            id: user_id,
+            username: user.username,
+            email: user.email
+        }
+    })
+     
 }
 
 //Right now exporting an empty object

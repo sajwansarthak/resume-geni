@@ -1,6 +1,7 @@
 const express = require("express")
 
 const authRouter = express.Router()
+const authController = require("../controller/auth.controller")
 
 //Or
 // const {Router} = require('express')
@@ -11,6 +12,6 @@ const authRouter = express.Router()
  * @description Register new user
  * @access public
  */
-authRouter.post("/register",)
+authRouter.post("/register",authController.registerUserController)
 
 module.exports = authRouter
