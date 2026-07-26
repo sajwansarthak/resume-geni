@@ -1,4 +1,4 @@
-const userModel = require("../config/database")
+const userModel = require("../models/user.model")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const cookie = require("cookie-parser")
@@ -11,7 +11,7 @@ const cookie = require("cookie-parser")
 async function registerUserController(req,res){
     const {username,email,password} = req.body
 
-    if(!username || email || password){
+    if(!username || !email || !password){
         return res.status(400).json({
             message:"Please provide username, email and password"
         })
@@ -60,7 +60,7 @@ async function registerUserController(req,res){
     res.status(201).json({
         messgae: "User registered successfully",
         user: {
-            id: user_id,
+            id: user._id,
             username: user.username,
             email: user.email
         }
