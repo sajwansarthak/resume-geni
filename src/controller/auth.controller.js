@@ -137,9 +137,29 @@ async function logoutUserController(req,res){
     })
 }
 
+/**
+ * @route GET api/auth/get-me
+ * @description get the current logged in details
+ * @access private
+ */
+
+async function getMeController(req,res){
+    const user = await userModel.findById(req.user.id)
+
+    res.status(200).json({
+        message: "User details fetched successfully",
+        user:{
+            id: user._id,
+            username: user.username,
+            email: user.email
+        }
+    })
+}
+
 //Right now exporting an empty object
 module.exports = {
     registerUserController,
     loginUserController,
-    logoutUserController
+    logoutUserController,
+    getMeController
 }
