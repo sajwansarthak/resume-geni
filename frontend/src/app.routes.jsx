@@ -1,6 +1,7 @@
 import {createBrowserRouter} from "react-router"
 import Login from "./features/authentication/pages/login"
 import Register from "./features/authentication/pages/Register"
+import Protected from "./features/authentication/components/protected"
 
 export const router = createBrowserRouter([
     {
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
     },
     {
         path:"/",
-        element: <h1>Home page</h1>
+        //made the home page protected so that you can't get to home page without logging in using ./component/protected.jsx
+        element: <Protected><h1>Home Page</h1></Protected>
     }
 ])
