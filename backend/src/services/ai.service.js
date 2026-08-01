@@ -19,18 +19,18 @@ const ai = new GoogleGenAI({
 const interviewReportScehma = z.object({
     matchScore: z.number().describe("A score between 0 and 100 indicating how will the candidate's profile is"),
     technicalQuestions: z.array(z.object({
-        questions: z.string().describe("The technical questions that can be asked in the interview"),
+        question: z.string().describe("The technical questions that can be asked in the interview"),
         intention: z.string().describe("The intention of the interviewer behind asking the question"),
         answer: z.string().describe("How to answer this question, what points to cover, what approcah to take etc."),
     })).describe("Technical questions that can be asked in the interview along with the intention"),
     behaviourQuestions: z.array(z.object({
-        questions: z.string().describe("The technical questions that can be asked in the interview"),
+        question: z.string().describe("The technical questions that can be asked in the interview"),
         intention: z.string().describe("The intention of the interviewer behind asking the question"),
         answer: z.string().describe("How to answer this question, what points to cover, what approcah to take etc."),
     })).describe("Behavioural questions that can be asked in the interview along with the intention"),
     skillGap: z.array(z.object({
         skill: z.string().describe("The skill which the candidate is lacking"),
-        severity: z.enum(["low","medium","hard"]).describe("The severity of the skill gap.")
+        severity: z.enum(["low","medium","high"]).describe("The severity of the skill gap.")
     })).describe("list of skill gap in the candidate's profile along with the severity."),
     preparationPlan: z.array(z.object({
         day: z.number().describe("The day in the preparation plan. Starting from 1"),
@@ -41,11 +41,143 @@ const interviewReportScehma = z.object({
 
 async function generateInterviewReport ({ resume, selfDescription, jobDescription }){
 
-    const prompt = `Generate an interview report for a candidate with the following details: 
-    Resume: ${resume}
-    Self Description: ${selfDescription}
-    Job Description: ${jobDescription}
-    `
+    const prompt = `
+
+    You are a Senior Software Engineering Interviewer.
+    
+    Analyze the candidate's resume, self description, and job description.
+    
+    Return ONLY valid JSON.
+    
+    The JSON MUST have EXACTLY this structure:
+    
+    {
+    
+      "matchScore": 0,
+    
+      "technicalQuestions": [
+    
+        {
+    
+          "question": "",
+    
+          "intention": "",
+    
+          "answer": ""
+    
+        }
+    
+      ],
+    
+      "behaviourQuestions": [
+    
+        {
+    
+          "question": "",
+    
+          "intention": "",
+    
+          "answer": ""
+    
+        }
+    
+      ],
+    
+      "skillGap": [
+    
+        {
+    
+          "skill": "",
+    
+          "severity": "low"
+    
+        }
+    
+      ],
+    
+      "preparationPlan": [
+    
+        {
+    
+          "day": 1,
+    
+          "focus": "",
+    
+          "tasks": [
+    
+            "",
+    
+            ""
+    
+          ]
+    
+        }
+    
+      ]
+    
+    }
+    
+    Requirements:
+    
+    - matchScore should be between 0 and 100.
+    
+    - Generate EXACTLY 10 technicalQuestions.
+    
+    - Each technical question must include:
+    
+      - question
+    
+      - intention
+    
+      - answer
+    
+    - Generate EXACTLY 8 behaviourQuestions.
+    
+    - Each behavioural question must include:
+    
+      - question
+    
+      - intention
+    
+      - answer
+    
+    - Generate AT LEAST 5 skillGap objects.
+    
+    - Each skill gap must contain:
+    
+      - skill
+    
+      - severity (low, medium, or high)
+    
+    - Generate a 14-day preparationPlan.
+    
+    - Each day must contain:
+    
+      - day
+    
+      - focus
+    
+      - tasks (minimum 2 tasks)
+    
+    DO NOT return arrays of strings.
+    
+    DO NOT omit any field.
+    
+    DO NOT include markdown or explanation.
+    
+    Resume:
+    
+    ${resume}
+    
+    Self Description:
+    
+    ${selfDescription}
+    
+    Job Description:
+    
+    ${jobDescription}
+    
+    `;
 
 
     const response = await ai.models.generateContent({
@@ -53,11 +185,13 @@ async function generateInterviewReport ({ resume, selfDescription, jobDescriptio
         contents: prompt,
         config:{
             responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(interviewReportScehma),
+            //responseSchema: zodToJsonSchema(interviewReportScehma),
 
         }
     })
-    console.log(JSON.parse(response.text))
+    const report = JSON.parse(response.text)
+    console.log(report)
+    return report
 }
 
 module.exports = generateInterviewReport

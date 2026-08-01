@@ -18,9 +18,12 @@ async function generateInterviewReportController(req,res){
         jobDescription
     })
 
+    //For checking
+    //console.dir(interviewReportByAi, { depth: null });
+
     const interviewReport = await interviewReportModel.create({
         user: req.user.id,
-        resume: resumeContent.texts,
+        resume: resumeContent.text,
         selfDescription,
         jobDescription,
         //destructuring interviewReport for the technical question
