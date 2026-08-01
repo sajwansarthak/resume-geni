@@ -54,10 +54,10 @@ async function generateInterviewReport ({ resume, selfDescription, jobDescriptio
         config:{
             responseMimeType: "application/json",
             responseSchema: zodToJsonSchema(interviewReportScehma),
-            
+
         }
     })
     console.log(JSON.parse(response.text))
 }
 
-module.exports = generateIntervieribe
+module.exports = generateInterviewReport
