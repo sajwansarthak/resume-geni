@@ -66,7 +66,7 @@ const behaviourQuestionsSchema = new mongoose.Schema({
     },
     answer:{
         type: String,
-        required: [ture,"Answer is required"]
+        required: [true,"Answer is required"]
     }
 },{
     _id: false
