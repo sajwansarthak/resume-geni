@@ -77,6 +77,13 @@ async function registerUserController(req,res){
 async function loginUserController(req,res){
     const { email, password } = req.body
 
+    // Validate request body
+    if (!email || !password) {
+        return res.status(400).json({
+            message: "Email and password are required"
+        });
+    }
+
     //check if user exists from the given email
     const user = await userModel.findOne({email})
 
