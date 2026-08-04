@@ -31,8 +31,10 @@
 
 // export default Home
 
-import React from "react"
+import React,{ useState,useRef } from "react"
 import "../style/home.scss"
+import { useInterview } from "../hooks/useInterview"
+import { useNavigate } from "react-router"
 
 // ---- inline icons (no external icon-library dependency) -----------------
 const BriefcaseIcon = (props) => (
@@ -68,47 +70,75 @@ const SparkleIcon = (props) => (
  * ---------------------------------------------------------------------
  * UI LAYER — Home
  * ---------------------------------------------------------------------
- * Purely presentational: no internal state, no API calls. Everything
- * needed to make it interactive arrives via props, so it can be wired
- * up later like:
- *
- *   const HomePage = () => {
- *     const form = useInterviewForm()   // hooks layer
- *     return <Home {...form} />
- *   }
- *
- * Planned layers (not built yet):
- *  - hooks/useInterviewForm.js  -> form state, validation, drag&drop
- *  - state/interviewStore.js    -> shared/global state if needed
- *  - api/interviewApi.js        -> POST /interview-report, file upload, etc.
- *
- * Every prop below has a default, so `<Home />` still renders fine
- * on its own until the hooks layer exists.
+ * Wired up to the `useInterview` hook for report generation/navigation.
+ * Local UI state (form fields, drag state, selected file name) lives
+ * here since it's presentational-but-interactive rather than shared
+ * app state.
  * ---------------------------------------------------------------------
  */
-const Home = ({
-    // Job description field
-    jobDescription = "",
-    onJobDescriptionChange = () => {},
-    jobDescriptionMaxLength = 5000,
+const Home = () => {
+    const { loading, generateReport } = useInterview()
+    const [jobDescription, setJobDescription] = useState("")
+    const [selfDescription, setSelfDescription] = useState("")
+    const [resumeFileName, setResumeFileName] = useState("")
+    const [isDraggingResume, setIsDraggingResume] = useState(false)
+    const resumeInputRef = useRef()
 
-    // Resume upload
-    resumeFileName = "",
-    onResumeChange = () => {},
-    onResumeDrop = () => {},
-    isDraggingResume = false,
-    onDragOver = () => {},
-    onDragLeave = () => {},
+    const navigate = useNavigate()
 
-    // Self description field
-    selfDescription = "",
-    onSelfDescriptionChange = () => {},
+    const canGenerate =
+        !loading && jobDescription.trim().length > 0 && (resumeFileName || selfDescription.trim().length > 0)
 
-    // Submit action
-    onGenerate = () => {},
-    isGenerating = false,
-    canGenerate = false,
-}) => {
+    const setResumeFile = (file) => {
+        if (!file) {
+            setResumeFileName("")
+            return
+        }
+        setResumeFileName(file.name)
+
+        // keep the hidden file input in sync so generateReport can read
+        // resumeInputRef.current.files[0], including drag & drop files
+        if (resumeInputRef.current) {
+            const dataTransfer = new DataTransfer()
+            dataTransfer.items.add(file)
+            resumeInputRef.current.files = dataTransfer.files
+        }
+    }
+
+    const handleResumeChange = (e) => {
+        setResumeFile(e.target.files?.[0])
+    }
+
+    const handleDragOver = (e) => {
+        e.preventDefault()
+        setIsDraggingResume(true)
+    }
+
+    const handleDragLeave = (e) => {
+        e.preventDefault()
+        setIsDraggingResume(false)
+    }
+
+    const handleResumeDrop = (e) => {
+        e.preventDefault()
+        setIsDraggingResume(false)
+        setResumeFile(e.dataTransfer.files?.[0])
+    }
+
+    const handleGenerateReport = async () => {
+        const resumeFile = resumeInputRef.current.files[0]
+        const data = await generateReport({ jobDescription, selfDescription, resumeFile })
+        navigate(`/interview/${data._id}`)
+    }
+
+    if(loading){
+        return(
+            <main className="loading-screen">
+                <h1>Loading your interview plan...</h1>
+            </main>
+        )
+    }
+
     return (
         <main className="home-page">
             <header className="home-page__header">
@@ -134,16 +164,12 @@ const Home = ({
 
                         <div className="job-panel__field">
                             <textarea
+                                onChange={(e) => setJobDescription(e.target.value)}
                                 id="jobDescription"
                                 name="jobDescription"
-                                maxLength={jobDescriptionMaxLength}
                                 placeholder={"Paste the full job description here...\ne.g. \"Senior Frontend Engineer at Google requires proficiency in React, TypeScript, and large-scale system design...\""}
                                 value={jobDescription}
-                                onChange={onJobDescriptionChange}
                             />
-                            <span className="job-panel__counter">
-                                {jobDescription.length} / {jobDescriptionMaxLength} chars
-                            </span>
                         </div>
                     </section>
 
@@ -162,9 +188,9 @@ const Home = ({
                             <label
                                 htmlFor="resume"
                                 className={`resume-dropzone${isDraggingResume ? " resume-dropzone--active" : ""}`}
-                                onDragOver={onDragOver}
-                                onDragLeave={onDragLeave}
-                                onDrop={onResumeDrop}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleResumeDrop}
                             >
                                 <span className="resume-dropzone__icon-wrap">
                                     <UploadCloudIcon className="resume-dropzone__icon" />
@@ -174,12 +200,13 @@ const Home = ({
                                 </span>
                                 <span className="resume-dropzone__hint">PDF or DOCX (Max 5MB)</span>
                                 <input
+                                    ref={resumeInputRef}
                                     hidden
                                     type="file"
                                     name="resume"
                                     id="resume"
                                     accept=".pdf,.docx"
-                                    onChange={onResumeChange}
+                                    onChange={handleResumeChange}
                                 />
                             </label>
                         </div>
@@ -191,11 +218,11 @@ const Home = ({
                         <div className="profile-panel__block">
                             <p className="profile-panel__label">Quick Self-Description</p>
                             <textarea
+                                onChange={(e) => setSelfDescription(e.target.value)}
                                 id="selfDescription"
                                 name="selfDescription"
                                 placeholder="Briefly describe your experience, key skills, and years of experience if you don't have a resume handy..."
                                 value={selfDescription}
-                                onChange={onSelfDescriptionChange}
                             />
                         </div>
 
@@ -214,11 +241,11 @@ const Home = ({
                     <button
                         type="button"
                         className="generate-button"
-                        onClick={onGenerate}
-                        disabled={!canGenerate || isGenerating}
+                        onClick={handleGenerateReport}
+                        disabled={!canGenerate}
                     >
                         <SparkleIcon className="generate-button__icon" />
-                        {isGenerating ? "Generating..." : "Generate My Interview Strategy"}
+                        {loading ? "Generating..." : "Generate My Interview Strategy"}
                     </button>
                 </footer>
             </div>

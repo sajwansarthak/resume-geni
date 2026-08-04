@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import "../style/interview.scss"
+import { useInterview } from "../hooks/useInterview"
 
 // ---- inline icons (no external icon-library dependency) -----------------
 const CodeIcon = (props) => (
@@ -65,16 +66,18 @@ const SEVERITY_LABEL = {
  * ---------------------------------------------------------------------
  */
 const Interview = ({
-    report = {
-        matchScore: 0,
-        technicalQuestions: [],
-        behaviourQuestions: [],
-        skillGap: [],
-        preparationPlan: [],
-    },
+    // report = {
+    //     matchScore: 0,
+    //     technicalQuestions: [],
+    //     behaviourQuestions: [],
+    //     skillGap: [],
+    //     preparationPlan: [],
+    // },
 }) => {
     const [activeSection, setActiveSection] = useState("technical")
     const [expandedId, setExpandedId] = useState(0)
+
+    const {report} = useInterview()
 
     const {
         matchScore = 0,
