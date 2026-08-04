@@ -54,6 +54,7 @@ async function generateInterviewReport ({ resume, selfDescription, jobDescriptio
     The JSON MUST have EXACTLY this structure:
     
     {
+      "title": "",
     
       "matchScore": 0,
     
@@ -120,6 +121,8 @@ async function generateInterviewReport ({ resume, selfDescription, jobDescriptio
     }
     
     Requirements:
+
+    - title should be the job title extracted from the job description.
     
     - matchScore should be between 0 and 100.
     
