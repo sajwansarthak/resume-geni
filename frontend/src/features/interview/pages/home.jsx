@@ -1,36 +1,3 @@
-// import React from "react"
-// import "../style/home.scss"
-
-// const Home = () =>{
-//     return(
-//         <main className="home">
-//             <div className="interview-input-group">
-//                 {/* Three input fields resume, job-description, self-description and a button generate report*/}
-//                 <div className="left">
-//                     <label htmlFor="jobDescription">Job Description</label>
-//                     <textarea name="jobDescription" id="jobDescription" placeholder="Enter job-description here..."></textarea>
-//                 </div>
-
-
-//                 <div className="right">
-//                     <div className="input-group">
-//                         <p>Resume <small className="highlight">(Use Resume and self description together for best results)</small></p>
-//                         <label htmlFor="resume" className="file-label"><h2>Upload Resume</h2></label>
-//                         <input hidden type="file" name="resume" id="resume" accept=".pdf"/>
-//                     </div>
-//                     <div className="input-group">
-//                         <label htmlFor="selfDescription"><h2>Self Description</h2></label>
-//                         <textarea name="selfDescription" id="selfDescription" placeholder="Describe yourself in few sentences..."></textarea>
-//                     </div>
-//                     <button className="button primary-button">Generate Interview Report</button>
-//                 </div>
-//             </div>
-//         </main>
-//     )
-// }
-
-// export default Home
-
 import React,{ useState,useRef } from "react"
 import "../style/home.scss"
 import { useInterview } from "../hooks/useInterview"
@@ -77,7 +44,7 @@ const SparkleIcon = (props) => (
  * ---------------------------------------------------------------------
  */
 const Home = () => {
-    const { loading, generateReport } = useInterview()
+    const { loading, generateReport, reports = [] } = useInterview()
     const [jobDescription, setJobDescription] = useState("")
     const [selfDescription, setSelfDescription] = useState("")
     const [resumeFileName, setResumeFileName] = useState("")
@@ -129,14 +96,6 @@ const Home = () => {
         const resumeFile = resumeInputRef.current.files[0]
         const data = await generateReport({ jobDescription, selfDescription, resumeFile })
         navigate(`/interview/${data._id}`)
-    }
-
-    if(loading){
-        return(
-            <main className="loading-screen">
-                <h1>Loading your interview plan...</h1>
-            </main>
-        )
     }
 
     return (
@@ -249,6 +208,32 @@ const Home = () => {
                     </button>
                 </footer>
             </div>
+
+            {/* Recent Reports list */}
+            {reports.length > 0 && (
+                <section className="recent-reports">
+                    <h2>My Recent Interview Plans</h2>
+                    <ul className="reports-list">
+                        {reports.map((report) => (
+                            <li
+                                key={report._id}
+                                className="report-item"
+                                onClick={() => navigate(`/interview/${report._id}`)}
+                            >
+                                <h3>{report.title || "Untitled Position"}</h3>
+                                <p className="report-meta">
+                                    Generated on{" "}
+                                    {new Date(report.createdAt).toLocaleDateString(undefined, {
+                                        year: "numeric",
+                                        month: "short",
+                                        day: "numeric",
+                                    })}
+                                </p>
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+            )}
 
             <nav className="home-page__links">
                 <a href="/privacy-policy">Privacy Policy</a>

@@ -1,6 +1,7 @@
-import React, { useState } from "react"
+import React, { useState,useEffect } from "react"
 import "../style/interview.scss"
 import { useInterview } from "../hooks/useInterview"
+import { useNavigate,useParams } from "react-router"
 
 // ---- inline icons (no external icon-library dependency) -----------------
 const CodeIcon = (props) => (
@@ -79,13 +80,14 @@ const Interview = ({
 
     const {report} = useInterview()
 
+
     const {
         matchScore = 0,
         technicalQuestions = [],
         behaviourQuestions = [],
         skillGap = [],
         preparationPlan = [],
-    } = report
+    } = report || {}
 
     const questionList = activeSection === "technical" ? technicalQuestions : behaviourQuestions
 

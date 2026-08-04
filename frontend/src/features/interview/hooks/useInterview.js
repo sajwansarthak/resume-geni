@@ -1,9 +1,13 @@
 import { getAllInterviewReports, generateInterviewReport, getInterviewReportById } from "../services/interview.api"
 import { useContext } from "react"
 import { InterviewContext } from "../interview.context"
+import {  useParams } from "react-router"
+import { useEffect } from "react"
 
 export const useInterview = () =>{
     const context = useContext(InterviewContext)
+    //hydrating
+    const { interviewId } = useParams()
 
     if(!context){
         throw new Error ("useInterview must be used within InterviewProvider")
@@ -31,7 +35,7 @@ export const useInterview = () =>{
         let response = null
         try{
             response = await getInterviewReportById(interviewId)
-            setReports(response.interviewReport)
+            setReport(response.interviewReport)
         }catch(err){
             console.log(err)
         }finally{
@@ -55,5 +59,15 @@ export const useInterview = () =>{
         return interviewReports
     }
 
-    return { loading, report, generateReport, getReportById, getReports }
+    //hydrating because as we reload the page it shows error
+    useEffect(() =>{
+        if(interviewId){
+            getReportById(interviewId)
+        } else{
+            getReports()
+        }
+    },[interviewId])
+
+    
+    return { loading, report, generateReport, getReportById, getReports,reports }
 }
