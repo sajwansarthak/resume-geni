@@ -12,6 +12,11 @@ app.use(cors({
     credentials: true
 }))
 
+app.use((req, res, next) => {
+  console.log(req.method, req.originalUrl);
+  next();
+});
+
 //Require all the routes here
 const authRouter = require("./routes/auth.routes")
 const interviewRouter = require("./routes/interview.routes")
