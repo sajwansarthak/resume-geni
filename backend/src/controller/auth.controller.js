@@ -33,7 +33,7 @@ async function registerUserController(req,res){
         if(isUserAlreadyExists.email === email){
             fields.push("email")
         }
-        res.status(400).json({
+        return res.status(400).json({
             message: `User already exists with this ${fields.join(" and ")}`
         })
     }
@@ -59,7 +59,7 @@ async function registerUserController(req,res){
 
     //status code 201 is used to signal  creation of new resource
     res.status(201).json({
-        messgae: "User registered successfully",
+        message: "User registered successfully",
         user: {
             id: user._id,
             username: user.username,
