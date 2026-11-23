@@ -1,53 +1,72 @@
 import React, { useState } from "react";
-import "../auth.form.scss"
-import { useNavigate,Link } from "react-router"
+import { useNavigate, Link, Navigate } from "react-router"
 import { useAuth } from "../hooks/useAuth";
+import { getErrorMessage } from "../services/auth.api";
+import AuthLayout, { AuthField, AuthSubmit, AuthError, MailIcon, LockIcon } from "../components/AuthLayout";
 
 const Login = () =>{
 
-    const { loading,handleLogin } = useAuth()
+    const { user, loading, handleLogin } = useAuth()
 
     //performing two way binding
     const [email,setEmail] = useState("")
     const [password,setPassword] = useState("")
+    const [error,setError] = useState("")
+    const [submitting,setSubmitting] = useState(false)
 
-    //using navigate function
     const navigate = useNavigate()
 
-    //stop the reload
+    //already logged in -> skip the login page
+    if(!loading && user){
+        return <Navigate to="/" replace />
+    }
+
     const handleSubmit = async (e) =>{
         e.preventDefault()
-        await handleLogin({email,password})
-        navigate('/')
+        setError("")
+        setSubmitting(true)
+        try{
+            await handleLogin({email,password})
+            navigate('/')
+        }catch(err){
+            setError(getErrorMessage(err, "Unable to log in. Please try again."))
+            setSubmitting(false)
+        }
     }
 
-    if(loading){
-        return (<main><h1>Loading.....</h1></main>)
-    }
     return (
-        <main>
-            <div className="form-container">
-                <h1>Login</h1>
+        <AuthLayout
+            title="Welcome back"
+            subtitle="Log in to continue building your interview strategy."
+            footer={<>Don't have an account?<Link to="/register">Create one</Link></>}
+        >
+            <form onSubmit={handleSubmit}>
+                <AuthError message={error} />
 
-                <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label htmlFor="email">Email</label>
-                        <input
-                        onChange={(e) =>{setEmail(e.target.value)}}
-                        type="email" id="email" name="email" placeholder="Enter email address" />
-                    </div>
-                    <div className="input-group">
-                        <label htmlFor="password">Password</label>
-                        <input 
-                        onChange={(e) =>{setPassword(e.target.value)}}
-                        type="text" id="password" name="password" placeholder="Enter the password" />
-                    </div>
+                <AuthField
+                    id="email"
+                    label="Email"
+                    type="email"
+                    icon={MailIcon}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                <AuthField
+                    id="password"
+                    label="Password"
+                    type="password"
+                    icon={LockIcon}
+                    placeholder="Enter your password"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
 
-                    <button className="button primary-button">Login</button>
-                </form>
-                <p>Don't have an account ?<Link to={"/register"}> Register</Link></p>
-            </div>
-        </main>
+                <AuthSubmit submitting={submitting} submittingLabel="Logging in...">Log in</AuthSubmit>
+            </form>
+        </AuthLayout>
     )
 }
 
