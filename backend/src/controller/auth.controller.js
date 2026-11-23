@@ -46,9 +46,6 @@ async function registerUserController(req,res){
         email,
         password: hash
     })
-    console.log("Original password:", password);
-    console.log("Generated hash:", hash);
-    console.log("Compare immediately:", await bcrypt.compare(password, hash));
 
     //creating token for the user -> using jsonwebtoken but it require a secret key which can be created from a website called jwtsecrets.com
     const token = jwt.sign(
@@ -90,8 +87,6 @@ async function loginUserController(req,res){
 
     //check if user exists from the given email
     const user = await userModel.findOne({email})
-
-    console.log("User found:", user);
 
     //if email is wrong or dosen't exists
     if(!user){
