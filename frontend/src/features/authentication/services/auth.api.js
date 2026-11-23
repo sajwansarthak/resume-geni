@@ -1,12 +1,6 @@
 //connecting with backend
 
-import axios from "axios"
-
-//making code clean creating the repeated function one and using them using api.post/get
-const api = axios.create({
-    baseURL: 'http://localhost:3000',
-    withCredentials: true
-})
+import api from "../../../lib/api"
 
 //pull the server's message out of an axios error so the UI can display it
 export function getErrorMessage(err, fallback = "Something went wrong. Please try again."){

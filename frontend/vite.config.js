@@ -4,4 +4,10 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    // forward API calls to the local Express server so cookies stay same-origin
+    proxy: {
+      '/api': 'http://localhost:3000',
+    },
+  },
 })
