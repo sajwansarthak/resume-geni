@@ -3,6 +3,14 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const tokenBlacklistModel = require("../models/blacklist.model")
 
+//httpOnly keeps the token away from page scripts; secure is required over https in production
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 24 * 60 * 60 * 1000 // 1 day, same as the JWT
+}
+
 /**
  * @name registerUserController
  * @description register a new user , excepts username,email,password
@@ -55,7 +63,7 @@ async function registerUserController(req,res){
     )
 
     //seting this token in cookie
-    res.cookie("token",token)
+    res.cookie("token",token,cookieOptions)
 
     //status code 201 is used to signal  creation of new resource
     res.status(201).json({
@@ -114,7 +122,7 @@ async function loginUserController(req,res){
     )
 
     //seting token inside a cookie 
-    res.cookie("token",token)
+    res.cookie("token",token,cookieOptions)
 
     res.status(200).json({
         message: "User loggedIn successfully",
@@ -139,7 +147,7 @@ async function logoutUserController(req,res){
         await tokenBlacklistModel.create({ token })
     }
 
-    res.clearCookie("token")
+    res.clearCookie("token",{ ...cookieOptions, maxAge: undefined })
 
     res.status(200).json({
         message: "User logged out successfully"
