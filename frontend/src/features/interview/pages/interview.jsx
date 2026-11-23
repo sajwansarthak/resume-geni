@@ -1,7 +1,6 @@
-import React, { useState,useEffect } from "react"
+import React, { useState } from "react"
 import "../style/interview.scss"
 import { useInterview } from "../hooks/useInterview"
-import { useNavigate,useParams } from "react-router"
 
 // ---- inline icons (no external icon-library dependency) -----------------
 const CodeIcon = (props) => (
@@ -52,29 +51,11 @@ const SEVERITY_LABEL = {
 }
 
 /**
- * ---------------------------------------------------------------------
  * UI LAYER — Interview
- * ---------------------------------------------------------------------
- * Purely presentational: report data arrives via the `report` prop and
- * everything else is local UI state (active section, expanded card).
- * Falls back to an empty-shaped report so `<Interview />` still renders
- * on its own until the hooks/api layer is wired up.
- *
- *   const InterviewPage = () => {
- *     const { report } = useInterviewReport()   // hooks layer
- *     return <Interview report={report} />
- *   }
- * ---------------------------------------------------------------------
+ * Report data comes from the `useInterview` hook (hydrated from the URL's
+ * interviewId); everything else is local UI state.
  */
-const Interview = ({
-    // report = {
-    //     matchScore: 0,
-    //     technicalQuestions: [],
-    //     behaviourQuestions: [],
-    //     skillGap: [],
-    //     preparationPlan: [],
-    // },
-}) => {
+const Interview = () => {
     const [activeSection, setActiveSection] = useState("technical")
     const [expandedId, setExpandedId] = useState(0)
 

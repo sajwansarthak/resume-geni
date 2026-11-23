@@ -1,8 +1,7 @@
 import { getAllInterviewReports, generateInterviewReport, getInterviewReportById } from "../services/interview.api"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { InterviewContext } from "../interview.context"
-import {  useParams } from "react-router"
-import { useEffect } from "react"
+import { useParams } from "react-router"
 
 export const useInterview = () =>{
     const context = useContext(InterviewContext)
@@ -27,7 +26,7 @@ export const useInterview = () =>{
             setLoading(false)
         }
 
-        return response.interviewReport
+        return response?.interviewReport
     }
 
     const getReportById = async (interviewId) =>{
@@ -42,7 +41,7 @@ export const useInterview = () =>{
             setLoading(false)
         }
 
-        return response.interviewReport
+        return response?.interviewReport
     }
 
     const getReports = async () =>{
@@ -56,7 +55,7 @@ export const useInterview = () =>{
         }finally{
             setLoading(false)
         }
-        return interviewReports
+        return response?.interviewReports ?? []
     }
 
     //hydrating because as we reload the page it shows error
